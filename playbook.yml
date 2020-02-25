@@ -1,5 +1,5 @@
-- name: Default Playbook - Starting Deploy
+- name: Playbook final - Executando o laboratorio final de treinamento Ansible
   hosts: all
   roles:
-    #- common
-    - updates
+    - common
+    - mysql

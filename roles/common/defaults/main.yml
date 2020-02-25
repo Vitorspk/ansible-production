@@ -1,2 +1,21 @@
 ---
-# defaults file for common
+
+common_packages_redhat:
+  - vim
+  - "Development Tools"
+  - net-tools
+  - nmap
+  - tcpdump
+  - wget
+  - screen
+
+common_packages_debian:
+  - vim
+  - build-essential
+  - net-tools
+  - nmap
+  - tcpdump
+  - wget
+  - screen
+
+...

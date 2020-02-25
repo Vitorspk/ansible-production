@@ -1,2 +1,79 @@
 ---
-# tasks file for mysql
+
+### Instalacao de pacotes
+
+- name: Instalacao de pacotes
+  apt: name={{mariadb_packages}} state=latest update_cache=yes install_recommends=yes
+  vars:
+    mariadb_packages:
+      - mariadb-client
+      - mariadb-server
+      - python-mysqldb
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: Criacao da senah root
+  command: openssl rand -base64 14 creates=/root/.my.cnf
+  register: mysql_root_pass
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: Display password
+  debug:
+    msg: "Password: {{ mysql_root_pass.stdout }}"
+  when: 
+    - mysql_root_pass.changed
+    - ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: Alteracao da senha de root
+  mysql_user: name=root host={{ item }} password={{ mysql_root_pass_stdout }}
+  with_items:
+    - 127.0.0.1
+    - localhost
+  when: 
+    - mysql_root_pass.changed
+    - ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: Copiando template .my.cnf
+  template: src=.my.cnf dest=/root/.my.cnf owner=root group=root mode=0600
+  when: 
+    - mysql_root_pass.changed
+    - ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: Removendo o acesso Anonimo
+  mysql_user: name="" host=localhost state=absent
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: Removendo a base test
+  mysql_db: name=test state=absent
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: Criacao da base de dados wordpress
+  mysql_db:
+    name: 'wordpress'
+    state: present
+    login_user: 'root'
+    login_password: "{{ mysql_root_pass.stdout }}"
+    login_host: localhost 
+
+- name: Criacao do usuario wordpress e liberacao de acesso ao banco de dados wordpress
+  mysql_user:
+    name: 'wordpress'
+    password: 'wordpress'
+    priv: 'wordpress.*:ALL'
+    host: '192.168.33.%'
+    login_user: 'root'
+    login_password: "{{ mysql_root_pass.stdout }}"
+    login_host: localhost
+  when: 
+    - mysql_root_pass.changed
+    - ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: Liberando acesso remoto no Mysql
+  lineinfile:
+    dest=/etc/mysql/mariadb.conf.d/50-server.conf
+    regexp='bind-address      = 127.0.0.1'
+    line='bind-address        = 192.168.33.11'
+    state=preset
+  notify: Restart MariaDB
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+...
