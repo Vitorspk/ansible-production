@@ -1,5 +1,4 @@
 ---
-
 # Criando e configurando variaveis no /etc/profile
 
 - name: Alteracao do /etc/profile
@@ -25,7 +24,6 @@
   shell: setenforce 0
   when: ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat'
 
-
 # Gerenciamento de pacotes e atualizações do Sistema Operacional.
 
 - name: Instalacao do repositorio epel-release
@@ -41,14 +39,14 @@
   when: ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat'
 
 - name: Remocao de pacotes desnecessarios
-  yum: name={{item}} state=absent
-  with_items:
-    - NetworkManager
-    - NetworkManager-libnm
-    - firewalld
-    - postfix
+  yum:
+    name:
+      - NetworkManager
+      - NetworkManager-libnm
+      - firewalld
+      - postfix
+    state: latest
   when: ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat'
-
 
   #### PARA DEBIAN ####
 
@@ -60,7 +58,7 @@
   apt: upgrade=dist
   when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
 
-- name: Atualizacao de pacotes - Debian
+- name: Instalacao de pacotes - Debian
   apt: name={{ common_packages_debian }} state=latest update_cache=yes
   when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
 
@@ -68,11 +66,11 @@
 
 - name: Criando o usuario treinamento
   user:
-    name=treinamento
-    comment="treinamento ansible"
-    shell="/bin/bash"
-    home="/home/treinamento"
-    password="344db06e7ee931c79451d33eb9b2eb1a"
+    name: treinamento
+    comment: "treinamento ansible"
+    shell: "/bin/bash"
+    home: "/home/treinamento"
+    password: "344db06e7ee931c79451d33eb9b2eb1a"
 
 
 ### Timezone
@@ -82,22 +80,20 @@
 
 ### Configuracoes de ssh
 
-- name: Configurando sshd_config
-  lineinfile:
-    dest=/etc/ssh/sshd_config
-    state=present
-    regexp={{ item_regexp }}
-    line={{ item.line }}
-  with_items:
-    - { regexp: '#Port 22', line: 'Port 22' }
-    - { regexp: '#Banner none', line: 'Banner /etc/ssh/banner_ssh' }
-    - { regexp: 'X11Forwarding yes', line: 'X11forwargind no' }
+# - name: Configurando sshd_config
+#   lineinfile:
+#     dest=/etc/ssh/sshd_config
+#     state=present
+#     regexp={{ item_regexp }}
+#     line={{ item.line }}
+#   with_items:
+#     - { regexp: '#Port 22', line: 'Port 22' }
+#     - { regexp: '#Banner none', line: 'Banner /etc/ssh/banner_ssh' }
+#     - { regexp: 'X11Forwarding yes', line: 'X11forwargind no' }
 
-- name: Definindo protocolo versao 2 do SSH
-  lineinfile: dest=/etc/ssh/sshd_config line='Protocol 2'
+# - name: Definindo protocolo versao 2 do SSH
+#   lineinfile: dest=/etc/ssh/sshd_config line='Protocol 2'
 
 - name: Adicionamento o motd
-  template: src=/motd dest=/etc/motd force=yes owner=root group=root mode=0755
-  notify: 
-    - Restart SSH
+  template: src=motd dest=/etc/motd force=yes owner=root group=root
 ...

@@ -1,2 +1,31 @@
 ---
-# tasks file for workpress
+
+# Download do wordpress
+
+- name: Download do codigo fonte do wordpress
+  unarchive:
+    creates: /var/www/html
+    src: https://wordpress.org/latest.tar.gz
+    dest: /var/www/html
+    owner: nginx
+    group: nginx
+    remote_src: yes
+  when: ansible_distribution == 'RedHat' or ansible_distribution == 'CentOS'
+
+- name: Configuracao de salts para o wp-config do wordpress
+  local_action: command curl https://api.wordpress.org/secret-key/1.1/salt/
+  register: "wp_salt"
+  become: no
+  become_method: sudo
+  args:
+    warn: false
+  when: ansible_distribution == 'RedHat' or ansible_distribution == 'CentOS'
+
+- name: Copiar o arquivo de template wp-config para o servidor
+  template: src=wp-config.php dest=/var/www/html/treinamento_ansible force=yes owner=nginx group=nginx
+  notify:
+    - Restart php-fpm
+    - Restart nginx
+  when: ansible_distribution == 'RedHat' or ansible_distribution == 'CentOS'
+
+...

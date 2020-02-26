@@ -1,2 +1,25 @@
 ---
-# defaults file for php
+
+packages:
+  - php72w-bcmath.x86_64
+  - php72w-cli.x86_64
+  - php72w-common.x86_64
+  - php72w-dba.x86_64
+  - php72w-devel.x86_64
+  - php72w-embedded.x86_64
+  - php72w-enchant.x86_64
+  - php72w-fpm.x86_64
+  - php72w-gd.x86_64
+  - php72w-imap.x86_64
+  - php72w-intl.x86_64
+  - php72w-ldap.x86_64
+  - php72w-mbstring.x86_64
+  - php72w-mysql.x86_64
+  - php72w-odbc.x86_64
+  - php72w-opcache.x86_64
+  - php72w-pdo.x86_64
+  - php72w-pdo_dblib.x86_64
+  - php72w-sodium.x86_64
+  - php72w-tidy.x86_64
+  - php72w-xml.x86_64
+...
